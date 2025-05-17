@@ -62,7 +62,6 @@ class MissionComputer:
         print(json.dumps(info, indent=4))
 
     def get_mission_computer_load(self):
-        """Get system load (CPU and Memory usage) and display in JSON format."""
         try:
             load = {
                 "CPU Load (1min avg)": os.getloadavg()[0] if hasattr(os, 'getloadavg') else "N/A",

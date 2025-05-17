@@ -12,7 +12,6 @@ class DummySensor:
         }
 
     def set_env(self):
-        """Set random values to each environmental variable within defined ranges."""
         self.env_values["mars_base_internal_temperature"] = random.uniform(18, 30)
         self.env_values["mars_base_external_temperature"] = random.uniform(0, 21)
         self.env_values["mars_base_internal_humidity"] = random.uniform(50, 60)
@@ -21,7 +20,6 @@ class DummySensor:
         self.env_values["mars_base_internal_oxygen"] = random.uniform(4.0, 7.0)
 
     def get_env(self):
-        """Return the current environment values."""
         return self.env_values
 
 ds = DummySensor()
