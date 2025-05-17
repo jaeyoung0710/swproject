@@ -1,12 +1,9 @@
-# mars_mission_computer.py
-
 import random
 import time
 import json
 
 class DummySensor:
     def __init__(self):
-        """Initialize environment values dictionary."""
         self.env_values = {
             "mars_base_internal_temperature": None,
             "mars_base_external_temperature": None,
@@ -17,7 +14,6 @@ class DummySensor:
         }
 
     def set_env(self):
-        """Set random values to each environmental variable within defined ranges."""
         self.env_values["mars_base_internal_temperature"] = random.uniform(18, 30)
         self.env_values["mars_base_external_temperature"] = random.uniform(0, 21)
         self.env_values["mars_base_internal_humidity"] = random.uniform(50, 60)
@@ -26,13 +22,11 @@ class DummySensor:
         self.env_values["mars_base_internal_oxygen"] = random.uniform(4.0, 7.0)
 
     def get_env(self):
-        """Return the current environment values."""
         return self.env_values
 
 
 class MissionComputer:
     def __init__(self):
-        """Initialize mission computer with empty environment data."""
         self.env_values = {
             "mars_base_internal_temperature": None,
             "mars_base_external_temperature": None,
@@ -41,18 +35,15 @@ class MissionComputer:
             "mars_base_internal_co2": None,
             "mars_base_internal_oxygen": None
         }
-        self.sensor = DummySensor()
+        self.ds = DummySensor() 
 
     def get_sensor_data(self):
-        """Fetch sensor data and display it as JSON every 5 seconds."""
         while True:
-            self.sensor.set_env()
-            self.env_values = self.sensor.get_env()
+            self.ds.set_env() 
+            self.env_values = self.ds.get_env()
             json_data = json.dumps(self.env_values, indent=4)
             print(json_data)
             time.sleep(5)
 
-
-# Run the MissionComputer
 RunComputer = MissionComputer()
 RunComputer.get_sensor_data()

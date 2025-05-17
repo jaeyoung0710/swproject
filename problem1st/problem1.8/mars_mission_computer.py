@@ -3,6 +3,8 @@ import time
 import json
 import platform
 import os
+import ctypes
+import psutil  # 시스템 부하 측정을 위한 외부 라이브러리 (예외 허용됨)
 
 class DummySensor:
     def __init__(self):
@@ -37,41 +39,73 @@ class MissionComputer:
             "mars_base_internal_co2": None,
             "mars_base_internal_oxygen": None
         }
-        self.sensor = DummySensor()
+        self.ds = DummySensor()
 
     def get_sensor_data(self):
         while True:
-            self.sensor.set_env()
-            self.env_values = self.sensor.get_env()
+            self.ds.set_env()
+            self.env_values = self.ds.get_env()
             json_data = json.dumps(self.env_values, indent=4)
+            print("[🌡️ Sensor Data]")
             print(json_data)
             time.sleep(5)
 
     def get_mission_computer_info(self):
         try:
             info = {
-                "Operating System": platform.system(),
+                "OS": platform.system(),
                 "OS Version": platform.version(),
                 "CPU Type": platform.processor(),
-                "CPU Cores": os.cpu_count(),
-                "Memory Size (bytes)": os.sysconf('SC_PAGE_SIZE') * os.sysconf('SC_PHYS_PAGES') if hasattr(os, 'sysconf') else "N/A"
+                "CPU Cores": os.cpu_count()
             }
-        except Exception as e:
-            info = {"Error": str(e)}
 
-        print(json.dumps(info, indent=4))
+            if platform.system() == "Windows":
+                class MEMORYSTATUSEX(ctypes.Structure):
+                    _fields_ = [
+                        ("dwLength", ctypes.c_ulong),
+                        ("dwMemoryLoad", ctypes.c_ulong),
+                        ("ullTotalPhys", ctypes.c_ulonglong),
+                        ("ullAvailPhys", ctypes.c_ulonglong),
+                        ("ullTotalPageFile", ctypes.c_ulonglong),
+                        ("ullAvailPageFile", ctypes.c_ulonglong),
+                        ("ullTotalVirtual", ctypes.c_ulonglong),
+                        ("ullAvailVirtual", ctypes.c_ulonglong),
+                        ("sullAvailExtendedVirtual", ctypes.c_ulonglong),
+                    ]
+                mem_stat = MEMORYSTATUSEX()
+                mem_stat.dwLength = ctypes.sizeof(MEMORYSTATUSEX)
+                ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(mem_stat))
+                info["Memory"] = f"{mem_stat.ullTotalPhys / (1024 ** 3):.2f} GB"
+            else:
+                # Linux, macOS: psutil 사용 가능
+                mem = psutil.virtual_memory()
+                info["Memory"] = f"{mem.total / (1024 ** 3):.2f} GB"
+
+            print("[🖥️ Mission Computer Info]")
+            print(json.dumps(info, indent=4))
+        except Exception as e:
+            print("[오류] 시스템 정보를 가져오는 중 오류 발생:", str(e))
 
     def get_mission_computer_load(self):
         try:
-            load = {
-                "CPU Load (1min avg)": os.getloadavg()[0] if hasattr(os, 'getloadavg') else "N/A",
-                "Memory Usage (bytes)": os.sysconf('SC_PAGE_SIZE') * (os.sysconf('SC_PHYS_PAGES') - os.sysconf('SC_AVPHYS_PAGES')) if hasattr(os, 'sysconf') else "N/A"
-            }
+            load_info = {}
+            cpu_percent = psutil.cpu_percent(interval=1)
+            memory = psutil.virtual_memory()
+
+            load_info["CPU Usage"] = f"{cpu_percent}%"
+            load_info["Memory Usage"] = f"{memory.percent}%"
+
+            print("[📊 Mission Computer Load]")
+            print(json.dumps(load_info, indent=4))
         except Exception as e:
-            load = {"Error": str(e)}
+            print("[오류] 시스템 부하 정보를 가져오는 중 오류 발생:", str(e))
 
-        print(json.dumps(load, indent=4))
 
-runComputer = MissionComputer()
-runComputer.get_mission_computer_info()
-runComputer.get_mission_computer_load()
+# 인스턴스 생성 및 기능 호출
+if __name__ == "__main__":
+    runComputer = MissionComputer()
+    runComputer.get_mission_computer_info()
+    runComputer.get_mission_computer_load()
+
+    # 센서 데이터 실시간 출력 (필요할 때만 주석 해제)
+    # runComputer.get_sensor_data()

@@ -1,76 +1,83 @@
-import os
+import os 
 
-def read_csv_columnwise(filename):
+def main():
     try:
-        with open(filename, 'r', encoding='utf-8') as file:
-            header = file.readline().strip().split(',')
-            columns = [[] for _ in header]
+        # 파일 열기
+        file = open("problem1st\\problem1.3\\1-3-Mars_Base_Inventory_List.csv", "r", encoding="utf-8")
+        lines = file.readlines()
+        file.close()
 
-            for line in file:
-                values = line.strip().split(',')
-                if len(values) != len(columns):
-                    continue
-                for i in range(len(values)):
-                    columns[i].append(values[i])
-            return header, columns
-    except FileNotFoundError:
-        print(f"[오류] 파일이 존재하지 않습니다: {filename}")
-        return [], []
-    except Exception as e:
-        print(f"[오류] 알 수 없는 문제 발생: {e}")
-        return [], []
+        # 고정 크기 배열 선언 (최대 200개 항목 저장)
+        name_column = [""] * 200
+        flammability_column = [0.0] * 200
+        count = 0
 
-def combine_rows(header, columns):
-    return [list(row) for row in zip(*columns)]
+        # 첫 줄은 헤더이므로 건너뜀
+        for i in range(1, len(lines)):
+            line = lines[i].strip()
+            parts = line.split(",")
+            
+            if len(parts) < 5:
+                continue  # 항목이 부족하면 무시
 
-def sort_by_flammability(rows, header):
-    if "flammability" in header:
-        idx = header.index("flammability")
-        rows.sort(key=lambda x: float(x[idx]), reverse=True)
-    return rows
-
-def filter_dangerous(rows, header):
-    dangerous = []
-    if "flammability" in header:
-        idx = header.index("flammability")
-        for row in rows:
+            flammability_str = parts[4].strip()
             try:
-                if float(row[idx]) >= 0.7:
-                    dangerous.append(row)
-            except ValueError:
-                continue
-    return dangerous
+                flammability = float(flammability_str)
+            except:
+                continue  # 숫자 변환 불가 시 무시
 
-def save_to_csv(filename, header, rows):
-    with open(filename, 'w', encoding='utf-8') as file:
-        file.write(','.join(header) + '\n')
-        for row in rows:
-            file.write(','.join(row) + '\n')
-    print(f"[완료] 위험 물품 목록 저장됨: {filename}")
+            name_column[count] = parts[0]
+            flammability_column[count] = flammability
+            count += 1
 
+        # 인화성 높은 순으로 정렬 (버블 정렬)
+        for i in range(count):
+            for j in range(i + 1, count):
+                if flammability_column[i] < flammability_column[j]:
+                    # 교환
+                    tmp_f = flammability_column[i]
+                    flammability_column[i] = flammability_column[j]
+                    flammability_column[j] = tmp_f
+
+                    tmp_n = name_column[i]
+                    name_column[i] = name_column[j]
+                    name_column[j] = tmp_n
+
+        # 결과 출력
+        print("[🔥 위험 물질 (인화성 ≥ 0.7)]")
+        for i in range(count):
+            if flammability_column[i] >= 0.7:
+                print(name_column[i], flammability_column[i])
+
+        # CSV 파일로 저장
+                # CSV 파일로 저장
+        try:
+            output_folder = "problem1st\\problem1.3"
+            output_file = os.path.join(output_folder, "Mars_Base_Inventory_danger.csv")
+            os.makedirs(output_folder, exist_ok=True)
+
+            out = open(output_file, "w", encoding="utf-8")
+            out.write("name,flammability\n")
+            for i in range(count):
+                if flammability_column[i] >= 0.7:
+                    out.write(name_column[i] + "," + str(flammability_column[i]) + "\n")
+            out.close()
+            print("\n✅ 파일 저장 완료:", output_file)
+        except:
+            print("[오류] 저장 중 오류 발생")
+
+
+    except FileNotFoundError:
+        print("[에러] Mars_Base_Inventory_List.csv 파일이 없습니다.")
+    except Exception as e:
+        print("[에러] 처리 중 문제 발생:", str(e))
+
+output_folder = "problem1st\\problem1.3"
+output_file = os.path.join(output_folder, "Mars_Base_Inventory_danger.csv")
+
+# 폴더 없으면 생성
+os.makedirs(output_folder, exist_ok=True)
+
+# 실행
 if __name__ == "__main__":
-    current_dir = os.path.dirname(__file__)
-    input_file = os.path.join(current_dir, "1-3-Mars_Base_Inventory_List.csv")
-    output_file = os.path.join(current_dir, "1-3-Mars_Base_Inventory_danger.csv")
-
-    header, columns = read_csv_columnwise(input_file)
-
-    if header:
-        print("[📦 전체 데이터 출력]")
-        all_rows = combine_rows(header, columns)
-        for row in all_rows:
-            print(row)
-
-        sorted_rows = sort_by_flammability(all_rows, header)
-
-        print("\n[🔥 인화성 순 정렬된 목록]")
-        for row in sorted_rows:
-            print(row)
-
-        danger_rows = filter_dangerous(sorted_rows, header)
-
-        print("\n[⚠️ 인화성 0.7 이상 위험 목록]")
-        for row in danger_rows:
-            print(row)
-
-        save_to_csv(output_file, header, danger_rows)
+    main()
