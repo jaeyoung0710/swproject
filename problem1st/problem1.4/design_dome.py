@@ -37,13 +37,29 @@ def sphere_area(diameter, material="유리", thickness=1):
     print(f"재질 ⇒ {result['재질']}, 지름 ⇒ {result['지름']}, 두께 ⇒ {result['두께']}, 면적 ⇒ {result['면적']}, 무게⇒{result['무게']} kg")
 
 if __name__ == "__main__":
-    try:
-        d = float(input("돔의 지름을 입력하세요 (단위: m): "))
-        m = input("재질을 입력하세요 (유리 / 알루미늄 / 탄소강) [기본값: 유리]: ") or "유리"
-        t = input("두께를 입력하세요 (단위: cm) [기본값: 1]: ") or "1"
+    while True:
+        try:
+            print("\n===== 반구 무게 계산기 =====")
+            print("※ 종료하려면 'q' 입력")
+            
+            d_input = input("돔의 지름을 입력하세요 (단위: m): ")
+            if d_input.lower() in ("q"):
+                print("프로그램을 종료합니다.")
+                break
+            d = float(d_input)
 
-        t = float(t)
+            m = input("재질을 입력하세요 (유리 / 알루미늄 / 탄소강) [기본값: 유리]: ") or "유리"
+            if m.lower() in ("q"):
+                print("프로그램을 종료합니다.")
+                break
 
-        sphere_area(d, m, t)
-    except ValueError:
-        print("[오류] 숫자 형식이 잘못되었습니다.")
+            t_input = input("두께를 입력하세요 (단위: cm) [기본값: 1]: ") or "1"
+            if t_input.lower() in ("q"):
+                print("프로그램을 종료합니다.")
+                break
+            t = float(t_input)
+
+            sphere_area(d, m, t)
+        
+        except ValueError:
+            print("[오류] 숫자 형식이 잘못되었습니다. 다시 입력해주세요.")
