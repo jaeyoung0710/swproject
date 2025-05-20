@@ -8,7 +8,7 @@ density_map = {
     "탄소강": 7.85
 }
 
-gravity_ratio = 3.71 / 9.81
+gravity_ratio = 3.71 / 9.81 
 
 def sphere_area(diameter, material="유리", thickness=1):
     global result
@@ -16,15 +16,15 @@ def sphere_area(diameter, material="유리", thickness=1):
     radius = diameter / 2  
     area = 2 * math.pi * (radius ** 2)  
     
-    area_cm2 = area * 10000  
+    area_cm2 = area * 10000     #면적 
 
-    volume_cm3 = area_cm2 * thickness  
+    volume_cm3 = area_cm2 * thickness     #부피 
 
-    density = density_map.get(material, 2.4)  
+    density = density_map.get(material, 2.4)   #재질의 밀도  
 
-    weight_g = volume_cm3 * density
+    weight_g = volume_cm3 * density  #질량
 
-    weight_kg_mars = (weight_g / 1000) * gravity_ratio
+    weight_kg_mars = (weight_g / 1000) * gravity_ratio 
 
     result = {
         "재질": material,
