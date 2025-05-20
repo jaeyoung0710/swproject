@@ -1,6 +1,6 @@
 import math
 
-result = {}
+result = {}   #전역변수 초기화화
 
 density_map = {
     "유리": 2.4,
@@ -8,15 +8,15 @@ density_map = {
     "탄소강": 7.85
 }
 
-gravity_ratio = 3.71 / 9.81 
+gravity_ratio = 3.71 / 9.81  #지구 중력에 대한 화성 중력 비비
 
 def sphere_area(diameter, material="유리", thickness=1):
     global result
 
-    radius = diameter / 2  
-    area = 2 * math.pi * (radius ** 2)  
+    radius = diameter / 2   #반지름 = 지름 / 2
+    area = 2 * math.pi * (radius ** 2)    #2 x pi x r^2
     
-    area_cm2 = area * 10000     #면적 
+    area_cm2 = area * 10000     #면적  m^2를 cm^2으로 변경경
 
     volume_cm3 = area_cm2 * thickness     #부피 
 
@@ -24,7 +24,7 @@ def sphere_area(diameter, material="유리", thickness=1):
 
     weight_g = volume_cm3 * density  #질량
 
-    weight_kg_mars = (weight_g / 1000) * gravity_ratio 
+    weight_kg_mars = (weight_g / 1000) * gravity_ratio  #g을 kg으로 변환 x 중력비비
 
     result = {
         "재질": material,
