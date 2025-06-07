@@ -13,13 +13,11 @@ class Calculator(QWidget):
         # 메인 레이아웃
         layout = QVBoxLayout()
 
-        # 디스플레이
         self.display = QLabel("")
         self.display.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         self.display.setStyleSheet("font-size: 40px; background: black; color: white; padding: 20px;")
         layout.addWidget(self.display)
 
-        # 버튼 레이아웃
         buttonLayout = QGridLayout()
         buttons = [
             ('⌫', 0, 0), ('+/-', 0, 1), ('%', 0, 2), ('÷', 0, 3),
@@ -44,7 +42,7 @@ class Calculator(QWidget):
         if text == '⌫':
             self.display.setText(self.display.text()[:-1])
         elif text in ['=', '+', '-', '×', '÷', '%', '+/-', '📱']:
-            pass  # 연산 기능 없음
+            pass  
         else:
             self.display.setText(self.display.text() + text)
 

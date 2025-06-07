@@ -11,9 +11,9 @@ def unzip_cctv():
     if not os.path.exists(CCTV_DIR):
         with zipfile.ZipFile(ZIP_PATH, 'r') as zip_ref:
             zip_ref.extractall(CCTV_DIR)
-        print('✅ CCTV.zip 압축 해제 완료')
+        print(' CCTV.zip 압축 해제 완료')
     else:
-        print('📂 CCTV 폴더가 이미 존재합니다')
+        print(' CCTV 폴더가 이미 존재합니다')
 
 
 def load_image_files(folder_path):
@@ -27,7 +27,7 @@ def load_image_files(folder_path):
 
 def view_images(images):
     if not images:
-        print('❌ 이미지가 없습니다.')
+        print('이미지가 없습니다.')
         return
 
     index = 0
@@ -36,7 +36,7 @@ def view_images(images):
     while True:
         img = cv2.imread(images[index])
         if img is None:
-            print(f'⚠️ 이미지를 불러올 수 없습니다: {images[index]}')
+            print(f' 이미지를 불러올 수 없습니다: {images[index]}')
             break
 
         cv2.imshow('CCTV Viewer', img)
