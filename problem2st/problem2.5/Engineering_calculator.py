@@ -1,87 +1,188 @@
-import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QGridLayout, QLineEdit, QPushButton
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QLineEdit, QGridLayout, QSizePolicy
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QFont
+import sys, math, random
 
-class EngineeringCalculator(QWidget):
+class Calculator(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("iPhone Style Engineering Calculator")
+        self.setWindowTitle("iPhone-Style Scientific Calculator")
         self.setStyleSheet("background-color: black;")
-        self.setFixedSize(430, 900)
-        self.initUI()
+        self.init_ui()
+        self.expression = ""
+        self.memory = 0
 
-    def initUI(self):
-        main_layout = QVBoxLayout()
-        main_layout.setSpacing(10)
-
-        # Display
-        self.display = QLineEdit()
-        self.display.setReadOnly(True)
-        self.display.setStyleSheet("font-size: 42px; color: white; background-color: black; border: none;")
+    def init_ui(self):
+        self.display = QLineEdit("0")
+        self.display.setFont(QFont("Arial", 40))
+        self.display.setStyleSheet("color: white; background-color: black; border: none;")
         self.display.setAlignment(Qt.AlignRight)
+        self.display.setReadOnly(True)
         self.display.setFixedHeight(80)
+
+        grid_layout = QGridLayout()
+        grid_layout.setSpacing(0)
+
+        main_layout = QVBoxLayout()
         main_layout.addWidget(self.display)
-
-        # Scientific buttons (6 x 5)
-        sci_buttons = [
-            ["(", ")", "mc", "m+", "m-"],
-            ["2ⁿᵈ", "x²", "x³", "xʸ", "eˣ"],
-            ["⅟x", "²√x", "³√x", "ʸ√x", "ln"],
-            ["x!", "sin", "cos", "tan", "e"],
-            ["Rand", "sinh", "cosh", "tanh", "π"],
-            ["⌫", "+/-", "%", "Deg", "EE"]
-        ]
-
-        sci_grid = QGridLayout()
-        for r, row in enumerate(sci_buttons):
-            for c, label in enumerate(row):
-                btn = QPushButton(label)
-                btn.clicked.connect(self.on_click)
-                btn.setStyleSheet(self.button_style(label, is_sci=True))
-                btn.setFixedSize(75, 60)
-                sci_grid.addWidget(btn, r, c)
-        main_layout.addLayout(sci_grid)
-
-        # Numeric/Operator buttons (5 x 4)
-        calc_buttons = [
-            ["7", "8", "9", "÷"],
-            ["4", "5", "6", "×"],
-            ["1", "2", "3", "-"],
-            ["📱", "0", ".", "+"],
-            ["", "", "", "="]
-        ]
-
-        calc_grid = QGridLayout()
-        for r, row in enumerate(calc_buttons):
-            for c, label in enumerate(row):
-                if label == "":
-                    continue
-                btn = QPushButton(label)
-                btn.clicked.connect(self.on_click)
-                btn.setStyleSheet(self.button_style(label))
-                btn.setFixedSize(90, 70)
-                calc_grid.addWidget(btn, r, c)
-        main_layout.addLayout(calc_grid)
-
+        main_layout.addLayout(grid_layout)
         self.setLayout(main_layout)
 
-    def button_style(self, label, is_sci=False):
-        if label in {"=", "+", "-", "×", "÷"}:
-            return "font-size: 22px; background-color: orange; color: white; border-radius: 30px;"
-        elif label in {"⌫", "+/-", "%"}:
-            return "font-size: 20px; background-color: #666666; color: white; border-radius: 30px;"
-        elif is_sci:
-            return "font-size: 16px; background-color: #222222; color: white; border-radius: 25px;"
-        else:
-            return "font-size: 22px; background-color: #333333; color: white; border-radius: 30px;"
+        buttons = [
+            ["mc", "m+", "m-", "mr", "AC", "±", "%", "÷"],
+            ["2nd", "x²", "x³", "xʸ", "7", "8", "9", "×"],
+            ["1/x", "√", "∛", "ʸ√x", "4", "5", "6", "-"],
+            ["ln", "log", "x!", "EE", "1", "2", "3", "+"],
+            ["Rad", "sin", "cos", "tan", "Rand", "0", ".", "="]
+        ]
 
-    def on_click(self):
-        sender = self.sender()
-        current = self.display.text()
-        self.display.setText(current + sender.text())
+        orange = {"÷", "×", "-", "+", "="}
+        light = {"AC", "±", "%"}
+        gray = {"mc", "m+", "m-", "mr", "2nd", "x²", "x³", "xʸ", "1/x", "√", "∛", "ʸ√x", "ln", "log", "x!", "EE", "Rad", "sin", "cos", "tan", "Rand"}
+
+        for row_idx, row in enumerate(buttons):
+            for col_idx, label in enumerate(row):
+                span = 2 if label == "0" else 1
+                btn = QPushButton(label)
+                btn.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+                grid_layout.addWidget(btn, row_idx, col_idx, 1, span)
+
+                if label in orange:
+                    btn.setStyleSheet("background-color: #ff9500; color: white; font-size: 20pt;")
+                elif label in light:
+                    btn.setStyleSheet("background-color: #a5a5a5; color: black; font-size: 20pt;")
+                elif label in gray:
+                    btn.setStyleSheet("background-color: #505050; color: white; font-size: 20pt;")
+                else:
+                    btn.setStyleSheet("background-color: #333333; color: white; font-size: 20pt;")
+
+                btn.clicked.connect(lambda checked, t=label: self.on_click(t))
+
+    def on_click(self, text):
+        if text == "AC":
+            self.expression = ""
+            self.display.setText("0")
+        elif text == "=":
+            try:
+                expr = self.expression.replace("÷", "/").replace("×", "*").replace("x²", "**2").replace("x³", "**3")
+                result = eval(expr)
+                self.display.setText(str(result))
+                self.expression = str(result)
+            except:
+                self.display.setText("Error")
+                self.expression = ""
+        elif text == "±":
+            if self.expression.startswith("-"):
+                self.expression = self.expression[1:]
+            else:
+                self.expression = "-" + self.expression
+            self.display.setText(self.expression)
+        elif text == "%":
+            try:
+                result = float(self.expression) / 100
+                self.expression = str(result)
+                self.display.setText(self.expression)
+            except:
+                self.display.setText("Error")
+                self.expression = ""
+        elif text == "mc":
+            self.memory = 0
+        elif text == "m+":
+            try:
+                self.memory += float(self.display.text())
+            except:
+                pass
+        elif text == "m-":
+            try:
+                self.memory -= float(self.display.text())
+            except:
+                pass
+        elif text == "mr":
+            self.expression = str(self.memory)
+            self.display.setText(self.expression)
+        elif text == "x!":
+            try:
+                result = math.factorial(int(float(self.display.text())))
+                self.expression = str(result)
+                self.display.setText(self.expression)
+            except:
+                self.display.setText("Error")
+                self.expression = ""
+        elif text == "1/x":
+            try:
+                result = 1 / float(self.display.text())
+                self.expression = str(result)
+                self.display.setText(self.expression)
+            except:
+                self.display.setText("Error")
+                self.expression = ""
+        elif text == "√":
+            try:
+                result = math.sqrt(float(self.display.text()))
+                self.expression = str(result)
+                self.display.setText(self.expression)
+            except:
+                self.display.setText("Error")
+                self.expression = ""
+        elif text == "∛":
+            try:
+                result = float(self.display.text()) ** (1/3)
+                self.expression = str(result)
+                self.display.setText(self.expression)
+            except:
+                self.display.setText("Error")
+                self.expression = ""
+        elif text == "ln":
+            try:
+                result = math.log(float(self.display.text()))
+                self.expression = str(result)
+                self.display.setText(self.expression)
+            except:
+                self.display.setText("Error")
+                self.expression = ""
+        elif text == "log":
+            try:
+                result = math.log10(float(self.display.text()))
+                self.expression = str(result)
+                self.display.setText(self.expression)
+            except:
+                self.display.setText("Error")
+                self.expression = ""
+        elif text == "sin":
+            try:
+                result = math.sin(math.radians(float(self.display.text())))
+                self.expression = str(result)
+                self.display.setText(self.expression)
+            except:
+                self.display.setText("Error")
+                self.expression = ""
+        elif text == "cos":
+            try:
+                result = math.cos(math.radians(float(self.display.text())))
+                self.expression = str(result)
+                self.display.setText(self.expression)
+            except:
+                self.display.setText("Error")
+                self.expression = ""
+        elif text == "tan":
+            try:
+                result = math.tan(math.radians(float(self.display.text())))
+                self.expression = str(result)
+                self.display.setText(self.expression)
+            except:
+                self.display.setText("Error")
+                self.expression = ""
+        elif text == "Rand":
+            value = random.random()
+            self.expression = str(value)
+            self.display.setText(self.expression)
+        else:
+            self.expression += text
+            self.display.setText(self.expression)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    window = EngineeringCalculator()
-    window.show()
+    calc = Calculator()
+    calc.resize(800, 400)
+    calc.show()
     sys.exit(app.exec_())
