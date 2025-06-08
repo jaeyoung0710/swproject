@@ -1,5 +1,3 @@
-# engineering_calculator.py
-
 import math
 
 class Calculator:
