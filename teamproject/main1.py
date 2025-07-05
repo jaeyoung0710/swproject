@@ -3,9 +3,8 @@ from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QGraphicsView, QGraphicsScene,
     QGraphicsRectItem, QWidget, QVBoxLayout, QSpinBox, QPushButton, QLabel, QGraphicsProxyWidget
 )
-from PyQt5.QtGui import QBrush, QColor, QPen, QFont
+from PyQt5.QtGui import QBrush, QColor, QPen
 from PyQt5.QtCore import QRectF, Qt, QTimer
-import random
 
 class VehicleItem(QGraphicsRectItem):
     def __init__(self, direction, x, y, width=40, height=25):
@@ -213,28 +212,28 @@ class OverheadIntersection(QMainWindow):
         csx, csy = self.center_x, self.center_y
         margin = 30
         lane_spacing = 45
+        spacing_between_vehicles = 100
+
         for direction, count in vehicle_counts.items():
-            lane_index = 0
             for i in range(count):
                 lane_index = i % 2
-                depth = i // 2 + random.randint(0, 2)
+                offset_index = i // 2
 
                 if direction == 'north':
-                    offset = -70 + lane_index * lane_spacing
-                    x = csx + offset - 20
-                    y = csy - self.horiz_road_height / 2 - margin - depth * 70
+                    x = csx - self.vert_road_width / 4 + lane_index * lane_spacing - 20
+                    y = csy - self.horiz_road_height / 2 - margin - offset_index * spacing_between_vehicles
+
                 elif direction == 'south':
-                    offset = 25 + lane_index * lane_spacing
-                    x = csx + offset - 20
-                    y = csy + self.horiz_road_height / 2 + margin + depth * 70
+                    x = csx + self.vert_road_width / 4 - lane_index * lane_spacing - 20
+                    y = csy + self.horiz_road_height / 2 + margin + offset_index * spacing_between_vehicles
+
                 elif direction == 'west':
-                    offset = 25 + lane_index * lane_spacing
-                    x = csx - self.vert_road_width / 2 - margin - depth * 70
-                    y = csy + offset - 20
+                    y = csy + self.horiz_road_height / 4 - lane_index * lane_spacing - 20
+                    x = csx - self.vert_road_width / 2 - margin - offset_index * spacing_between_vehicles
+
                 elif direction == 'east':
-                    offset = -70 + lane_index * lane_spacing
-                    x = csx + self.vert_road_width / 2 + margin + depth * 70
-                    y = csy + offset - 20
+                    y = csy - self.horiz_road_height / 4 + lane_index * lane_spacing - 20
+                    x = csx + self.vert_road_width / 2 + margin + offset_index * spacing_between_vehicles
 
                 car = VehicleItem(direction, x, y)
                 self.scene.addItem(car)
