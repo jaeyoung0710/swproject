@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtGui import QBrush, QColor, QPen
 from PyQt5.QtCore import QRectF, Qt, QTimer
 
+
 class VehicleItem(QGraphicsRectItem):
     def __init__(self, direction, x, y, width=40, height=25):
         super().__init__(0, 0, width, height)
@@ -25,6 +26,7 @@ class VehicleItem(QGraphicsRectItem):
         elif self.direction == 'east':
             dx = -self.speed
         self.moveBy(dx, dy)
+
 
 class OverheadIntersection(QMainWindow):
     def __init__(self):
@@ -215,33 +217,40 @@ class OverheadIntersection(QMainWindow):
         spacing_between_vehicles = 100
 
         for direction, count in vehicle_counts.items():
-            for i in range(count):
-                lane_index = i % 2
-                offset_index = i // 2
+            num_lanes = 2
+            num_per_lane = (count + 1) // 2
 
-                if direction == 'north':
-                    x = csx - self.vert_road_width / 4 + lane_index * lane_spacing - 20
-                    y = csy - self.horiz_road_height / 2 - margin - offset_index * spacing_between_vehicles
+            for lane in range(num_lanes):
+                for i in range(num_per_lane):
+                    if lane == 0 and 2 * i >= count:
+                        continue
+                    if lane == 1 and 2 * i + 1 >= count:
+                        continue
 
-                elif direction == 'south':
-                    x = csx + self.vert_road_width / 4 - lane_index * lane_spacing - 20
-                    y = csy + self.horiz_road_height / 2 + margin + offset_index * spacing_between_vehicles
+                    if direction == 'north':
+                        x = csx - self.vert_road_width / 4 + lane * lane_spacing - 20
+                        y = csy - self.horiz_road_height / 2 - margin - i * spacing_between_vehicles
 
-                elif direction == 'west':
-                    y = csy + self.horiz_road_height / 4 - lane_index * lane_spacing - 20
-                    x = csx - self.vert_road_width / 2 - margin - offset_index * spacing_between_vehicles
+                    elif direction == 'south':
+                        x = csx + self.vert_road_width / 4 - lane * lane_spacing - 20
+                        y = csy + self.horiz_road_height / 2 + margin + i * spacing_between_vehicles
 
-                elif direction == 'east':
-                    y = csy - self.horiz_road_height / 4 + lane_index * lane_spacing - 20
-                    x = csx + self.vert_road_width / 2 + margin + offset_index * spacing_between_vehicles
+                    elif direction == 'west':
+                        y = csy + self.horiz_road_height / 4 - lane * lane_spacing - 20
+                        x = csx - self.vert_road_width / 2 - margin - i * spacing_between_vehicles
 
-                car = VehicleItem(direction, x, y)
-                self.scene.addItem(car)
-                self.vehicles.append(car)
+                    elif direction == 'east':
+                        y = csy - self.horiz_road_height / 4 + lane * lane_spacing - 20
+                        x = csx + self.vert_road_width / 2 + margin + i * spacing_between_vehicles
+
+                    car = VehicleItem(direction, x, y)
+                    self.scene.addItem(car)
+                    self.vehicles.append(car)
 
     def update_simulation(self):
         for car in self.vehicles:
             car.move_forward()
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
