@@ -213,7 +213,7 @@ class OverheadIntersection(QMainWindow):
     def create_vehicles(self, vehicle_counts):
         csx, csy = self.center_x, self.center_y
         margin = 30
-        lane_spacing = 45
+        lane_spacing = 90
         spacing_between_vehicles = 100
 
         for direction, count in vehicle_counts.items():
@@ -228,19 +228,19 @@ class OverheadIntersection(QMainWindow):
                         continue
 
                     if direction == 'north':
-                        x = csx - self.vert_road_width / 4 + lane * lane_spacing - 20
+                        x = csx - self.vert_road_width / 4 - lane * lane_spacing +30
                         y = csy - self.horiz_road_height / 2 - margin - i * spacing_between_vehicles
 
                     elif direction == 'south':
-                        x = csx + self.vert_road_width / 4 - lane * lane_spacing - 20
+                        x = csx + self.vert_road_width / 4 + lane * lane_spacing - 60
                         y = csy + self.horiz_road_height / 2 + margin + i * spacing_between_vehicles
 
                     elif direction == 'west':
-                        y = csy + self.horiz_road_height / 4 - lane * lane_spacing - 20
+                        y = csy + self.horiz_road_height / 4 + lane * lane_spacing - 53
                         x = csx - self.vert_road_width / 2 - margin - i * spacing_between_vehicles
 
                     elif direction == 'east':
-                        y = csy - self.horiz_road_height / 4 + lane * lane_spacing - 20
+                        y = csy - self.horiz_road_height / 4 - lane * lane_spacing +30
                         x = csx + self.vert_road_width / 2 + margin + i * spacing_between_vehicles
 
                     car = VehicleItem(direction, x, y)
