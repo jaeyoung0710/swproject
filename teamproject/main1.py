@@ -1,7 +1,7 @@
 import sys
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QGraphicsView, QGraphicsScene,
-    QGraphicsRectItem, QWidget, QVBoxLayout, QSpinBox, QPushButton, QLabel, QGraphicsProxyWidget
+    QGraphicsRectItem, QWidget, QVBoxLayout, QSpinBox, QPushButton, QLabel, QGraphicsProxyWidget, QHBoxLayout
 )
 from PyQt5.QtGui import QBrush, QColor, QPen
 from PyQt5.QtCore import QRectF, Qt, QTimer
@@ -166,8 +166,15 @@ class OverheadIntersection(QMainWindow):
         self.south_input = QSpinBox()
         self.east_input = QSpinBox()
         self.west_input = QSpinBox()
-        for spin in [self.north_input, self.south_input, self.east_input, self.west_input]:
-            spin.setRange(0, 50)
+
+        self.north_time = QSpinBox()
+        self.south_time = QSpinBox()
+        self.east_time = QSpinBox()
+        self.west_time = QSpinBox()
+
+        for spin in [self.north_input, self.south_input, self.east_input, self.west_input,
+                     self.north_time, self.south_time, self.east_time, self.west_time]:
+            spin.setRange(0, 60)
             spin.setStyleSheet("background-color: white; color: black;")
 
         label = QLabel("↑북↓남 →동←서")
@@ -185,6 +192,16 @@ class OverheadIntersection(QMainWindow):
         layout.addWidget(self.east_input)
         layout.addWidget(QLabel("서쪽 차량 수:"))
         layout.addWidget(self.west_input)
+
+        layout.addWidget(QLabel("북쪽 신호 시간 (초):"))
+        layout.addWidget(self.north_time)
+        layout.addWidget(QLabel("남쪽 신호 시간 (초):"))
+        layout.addWidget(self.south_time)
+        layout.addWidget(QLabel("동쪽 신호 시간 (초):"))
+        layout.addWidget(self.east_time)
+        layout.addWidget(QLabel("서쪽 신호 시간 (초):"))
+        layout.addWidget(self.west_time)
+
         layout.addWidget(start_btn)
 
         container = QWidget()
@@ -202,6 +219,15 @@ class OverheadIntersection(QMainWindow):
             'east': self.east_input.value(),
             'west': self.west_input.value(),
         }
+
+        timings = {
+            'north': self.north_time.value(),
+            'south': self.south_time.value(),
+            'east': self.east_time.value(),
+            'west': self.west_time.value(),
+        }
+
+        print("신호등 시간 설정:", timings)
 
         for car in self.vehicles:
             self.scene.removeItem(car)
